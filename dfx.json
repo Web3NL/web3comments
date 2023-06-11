@@ -1,0 +1,24 @@
+{
+    "canisters": {
+        "backend": {
+            "type": "motoko",
+            "main": "src/backend/main.mo",
+            "declarations": {
+                "output": "src/declarations",
+                "node_compatibility": true
+            }
+        },
+        "frontend": {
+            "type": "assets",
+            "source": [
+                "build/"
+            ],
+            "dependencies": [
+                "backend"
+            ],
+            "frontend": {
+                "entrypoint": "build/index.html"
+            }
+        }
+    }
+}
