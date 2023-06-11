@@ -15,17 +15,21 @@
 	$: user = $userStore;
 </script>
 
-{#if user}
-	<div class="mr-3 ml-3 mt-5 mb-5 flex justify-between ">
-		<div>
-			<p class="h2">User{user.id}</p>
-			<span class="text-tertiary-900">Logged in</span>
+{#await updateUser()}
+	Loading user...
+{:then _}
+	{#if user}
+		<div class="mr-3 ml-3 mt-5 mb-5 flex justify-between">
+			<div>
+				<p class="h2">User{user.id}</p>
+				<span class="text-tertiary-900">Logged in</span>
+			</div>
+			<div>
+				<p class="h2">{user.balance}</p>
+				<span class="text-tertiary-900">Balance</span>
+			</div>
 		</div>
-		<div>
-			<p class="h2">{user.balance}</p>
-			<span class="text-tertiary-900">Balance</span>
-		</div>
-	</div>
-	
-	<Post on:updateUser={updateUser}/>
-{/if}
+
+		<Post on:updateUser={updateUser} />
+	{/if}
+{/await}
