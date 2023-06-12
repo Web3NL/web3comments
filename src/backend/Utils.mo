@@ -36,7 +36,7 @@ module {
 
     // Comment size validation
     public func validateComment(c : Text) : Bool {
-        c.size() <= Constants.MAX_COMMENT_SIZE;
+        c.size() >= Constants.MIN_COMMENT_SIZE and c.size() <= Constants.MAX_COMMENT_SIZE;
     };
 
     // User record conversion
@@ -52,6 +52,6 @@ module {
 
     // Check treasury balance
     public func fundsAvalaible(t : Treasury, amount : Nat) : Bool {
-        t[0] >= amount;
+        t >= amount;
     };
 };

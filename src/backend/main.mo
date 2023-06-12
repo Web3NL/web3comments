@@ -22,12 +22,12 @@ actor {
     type Comment = Types.Comment;
     type CommentHash = Types.CommentHash;
 
-    type Treasury = Types.Treasury;
+    type State = Types.State;
+
     type Users = Types.Users;
     type CommentStore = Types.CommentStore;
     type CommentHistory = Types.CommentHistory;
-
-    type Stores = Types.Stores;
+    type Treasury = Types.Treasury;
 
     type PostResult = Types.PostResult;
     type LikeResult = Types.LikeResult;
@@ -36,28 +36,36 @@ actor {
     type QueryUser = Types.QueryUser;
 
     // STABLE DATA STORES
-    stable var treasury : Treasury = [var Constants.TOTAL_SUPPLY];
-
     stable var stableUsers : [(Principal, User)] = [];
     stable var stableCommentStore : [(CommentHash, Comment)] = [];
     stable var stableCommentHistory : [CommentHash] = [];
+    stable var stableTreasury : Treasury = Constants.TOTAL_SUPPLY;
 
-    // INIT DATA STORES FROM STABLE DATA
-    let users : Users = HashMap.fromIter<Principal, User>(
-        Array.vals(stableUsers),
-        1000,
-        Principal.equal,
-        Principal.hash,
-    );
+    // INIT DATA STORES FROM STABLE VARS
+    let state : State = {
 
-    let commentStore : CommentStore = HashMap.fromIter<CommentHash, Comment>(
-        Array.vals(stableCommentStore),
-        10_000,
-        Hash.equal,
-        Utils.hash,
-    );
+        // Users HashMap with initial capacity of 1000 users
+        users : Users = HashMap.fromIter<Principal, User>(
+            Array.vals(stableUsers),
+            1000,
+            Principal.equal,
+            Principal.hash,
+        );
 
-    let commentHistory : CommentHistory = [var List.fromArray<CommentHash>(stableCommentHistory)];
+        // Comments HashMap with initial capacity of 10,000 comments and custom hashing function
+        commentStore : CommentStore = HashMap.fromIter<CommentHash, Comment>(
+            Array.vals(stableCommentStore),
+            10_000,
+            Hash.equal,
+            Utils.hash,
+        );
+
+        // Comment history List
+        var commentHistory : CommentHistory = List.fromArray<CommentHash>(stableCommentHistory);
+
+        // Treasury
+        var treasury = stableTreasury;
+    };
 
     // PUBLIC METHODS
 
@@ -65,38 +73,31 @@ actor {
         // Anonymous users cannot register
         if (Principal.isAnonymous(msg.caller)) throw Error.reject("Anonymous users cannot register");
 
-        Comments.register(users, msg.caller);
+        Comments.register(state.users, msg.caller);
     };
 
     public shared (msg) func postComment(comment : Text) : async PostResult {
         // Anonymous users cannot post comments
         if (Principal.isAnonymous(msg.caller)) return #err(#AnonNotAllowed);
 
-        let stores : Stores = (treasury, users, commentStore, commentHistory);
-
-        Comments.postComment(stores, msg.caller, comment);
+        Comments.postComment(state, msg.caller, comment);
     };
 
     public shared (msg) func likeComment(hash : CommentHash) : async LikeResult {
         // Anonymous users cannot like comments
         if (Principal.isAnonymous(msg.caller)) return #err(#AnonNotAllowed);
 
-        let stores : Stores = (treasury, users, commentStore, commentHistory);
-
-        await* Comments.likeComment(stores, hash, msg.caller);
+        await* Comments.likeComment(state, hash, msg.caller);
     };
 
     public query func latestComments() : async [QueryComment] {
         // Anonymous users can query comments
-
-        let stores : Stores = (treasury, users, commentStore, commentHistory);
-
-        Comments.latestComments(stores);
+        Comments.latestComments(state);
     };
 
     public query func tokenTreasury() : async Nat {
         // Anon users can query treasury
-        treasury[0];
+        state.treasury;
     };
 
     // UPGRADING
@@ -104,16 +105,18 @@ actor {
     // Save state to stable arrays
     system func preupgrade() {
         stableUsers := Iter.toArray<(Principal, User)>(
-            users.entries()
+            state.users.entries()
         );
 
         stableCommentStore := Iter.toArray<(CommentHash, Comment)>(
-            commentStore.entries()
+            state.commentStore.entries()
         );
 
         stableCommentHistory := List.toArray<CommentHash>(
-            commentHistory[0]
+            state.commentHistory
         );
+
+        stableTreasury := state.treasury;
     };
 
     // Empty stable arrays to save memory

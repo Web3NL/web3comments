@@ -13,7 +13,7 @@ import {
 } "Utils";
 
 module {
-    type Stores = Types.Stores;
+    type State = Types.State;
     type Users = Types.Users;
 
     type User = Types.User;
@@ -59,13 +59,11 @@ module {
         };
     };
 
-    public func postComment(stores : Stores, owner : Principal, comment : Text) : PostResult {
+    public func postComment(state : State, owner : Principal, comment : Text) : PostResult {
         // Check if comment is valid
         if (not validateComment(comment)) return #err(#InvalidComment);
 
-        let (treasury, users, commentStore, commentHistory) = stores;
-
-        switch (users.get(owner)) {
+        switch (state.users.get(owner)) {
 
             // Users must be registered before posting
             // If user doesn't exist, return error
@@ -91,8 +89,8 @@ module {
 
                 // If treasury is not empty, subtract and add an equal amount of funds
                 var reward = 0;
-                if (fundsAvalaible(treasury, COMMENT_REWARD)) {
-                    treasury[0] -= COMMENT_REWARD;
+                if (fundsAvalaible(state.treasury, COMMENT_REWARD)) {
+                    state.treasury -= COMMENT_REWARD;
                     reward += COMMENT_REWARD;
                 };
                 
@@ -107,22 +105,20 @@ module {
                 };
 
                 // Update state within atomic block
-                users.put(owner, newUser);
+                state.users.put(owner, newUser);
 
-                commentStore.put(hash, postComment);
+                state.commentStore.put(hash, postComment);
 
-                commentHistory[0] := List.push<CommentHash>(hash, commentHistory[0]);
+                state.commentHistory := List.push<CommentHash>(hash, state.commentHistory);
 
                 #ok();
             };
         };
     };
 
-    public func likeComment(stores : Stores, hash : CommentHash, liker : Principal) : async* LikeResult {
-        let (treasury, users, commentStore, _) = stores;
-
+    public func likeComment(state : State, hash : CommentHash, liker : Principal) : async* LikeResult {
         // Like the comment if possible
-        switch (users.get(liker)) {
+        switch (state.users.get(liker)) {
 
             // Users must be registered before liking
             case (null) { return #err(#UserNotFound) };
@@ -150,12 +146,12 @@ module {
                 };
 
                 // Update state within atomic block
-                users.put(liker, newUser);
+                state.users.put(liker, newUser);
             };
         };
 
         // Update comment reward and user balance
-        switch (commentStore.get(hash)) {
+        switch (state.commentStore.get(hash)) {
 
             // If comment doesn't exist, return error
             // Error is thrown before any state updates
@@ -163,15 +159,15 @@ module {
 
             // If comment exists, update reward and balance
             case (?comment) {
-                switch (users.get(comment.owner)) {
+                switch (state.users.get(comment.owner)) {
                     case (null) {
                         throw Error.reject("Comment has no owner");
                     };
                     case (?owner) {
                         // If treasury is not empty, subtract and add to user balance and comment total reward
                         var likeReward = 0;
-                        if (fundsAvalaible(treasury, LIKE_REWARD)) {
-                            treasury[0] -= LIKE_REWARD;
+                        if (fundsAvalaible(state.treasury, LIKE_REWARD)) {
+                            state.treasury -= LIKE_REWARD;
                             likeReward += LIKE_REWARD;
                         };
                         let reward = comment.reward + likeReward;
@@ -188,8 +184,8 @@ module {
                         };
 
                         // Update state within atomic block
-                        commentStore.put(hash, newComment);
-                        users.put(comment.owner, newOwner);
+                        state.commentStore.put(hash, newComment);
+                        state.users.put(comment.owner, newOwner);
 
                         #ok(newComment.reward);
                     };
@@ -199,20 +195,18 @@ module {
         };
     };
 
-    public func latestComments(stores : Stores) : [QueryComment] {
-        let (_, users, commentStore, commentHistory) = stores;
-
+    public func latestComments(state : State) : [QueryComment] {
         // Take the latest 50 comment hashes
-        let latestHashes = List.take<CommentHash>(commentHistory[0], 50);
+        let latestHashes = List.take<CommentHash>(state.commentHistory, 50);
 
         // Map comment hashes to [QueryComment]
         let comments = List.mapFilter<CommentHash, QueryComment>(
             latestHashes,
             func(hash : CommentHash) : ?QueryComment {
-                switch (commentStore.get(hash)) {
+                switch (state.commentStore.get(hash)) {
                     case (null) return null;
                     case (?comment) {
-                        switch (users.get(comment.owner)) {
+                        switch (state.users.get(comment.owner)) {
                             case (null) return null;
                             case (?user) {
                                 let userId = "User" # Nat.toText(user.id);
@@ -231,5 +225,4 @@ module {
         );
         List.toArray(comments);
     };
-
 };

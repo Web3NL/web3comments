@@ -23,12 +23,17 @@ module {
     };
 
     // Stores
-    public type Treasury = [var Nat];
+    public type State = object {
+        users : Users;
+        commentStore : CommentStore;
+        var commentHistory : CommentHistory;
+        var treasury : Treasury;
+    };
+
     public type Users = HashMap.HashMap<Principal, User>;
     public type CommentStore = HashMap.HashMap<CommentHash, Comment>;
-    public type CommentHistory = [var List.List<CommentHash>];
-
-    public type Stores = (Treasury, Users, CommentStore, CommentHistory);
+    public type CommentHistory = List.List<CommentHash>;
+    public type Treasury = Nat;
 
     // Results
     type Error = {

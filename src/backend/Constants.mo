@@ -6,5 +6,6 @@ module {
     public let COMMENT_INTERVAL = 600_000_000_000; 
     public let LIKE_INTERVAL = 60_000_000_000; 
 
+    public let MIN_COMMENT_SIZE = 3;
     public let MAX_COMMENT_SIZE = 200;
 }
