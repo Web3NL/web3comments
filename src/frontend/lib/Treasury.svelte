@@ -1,14 +1,16 @@
 <script lang="ts">
-	import { treasury } from './api';
+	import { treasuryStore } from '$lib/treasury.store';
 	import { onMount } from 'svelte';
 
-	let amount: string;
+	let supply: bigint | null | undefined = null;
 
 	onMount(async () => {
-		amount = Number(await treasury()).toLocaleString();
+		supply = $treasuryStore;
 	});
+
+	$: supply = $treasuryStore;
 </script>
 
 <span class="text-tertiary-900">
-	Treasury: <span class="font-medium text-xl">{amount}</span>
+	Treasury: <span class="font-medium text-xl">{supply}</span>
 </span>

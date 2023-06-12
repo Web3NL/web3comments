@@ -3,6 +3,7 @@
 	import { authStore } from '$lib/auth.store';
 	import Button from '$lib/Button.svelte';
 	import { like } from './api';
+	import { treasuryStore } from './treasury.store';
 
 	export let queryComment: QueryComment;
 
@@ -16,6 +17,7 @@
 		if ('ok' in result) {
 			queryComment.reward = result.ok;
 			likeButton = 'LIKED';
+			await treasuryStore.update();
 		} else if ('err' in result) {
 			'AnonNotAllowed' in result.err ? likeButton = "Anon not allowed" : {};
 			'AlreadyLiked' in result.err ? likeButton = 'LIKED' : {};

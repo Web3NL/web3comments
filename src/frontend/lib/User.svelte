@@ -1,12 +1,16 @@
 <script lang="ts">
 	import type { QueryUser } from '$declarations/backend.did';
 	import { userStore } from '$lib/user.store';
+	import { treasuryStore } from '$lib/treasury.store';
 	import { onMount } from 'svelte';
 	import Post from './Post.svelte';
 
 	let user: QueryUser | null | undefined = null;
 
-	const updateUser = async () => await userStore.update();
+	const update = async () => {
+		await userStore.update();
+		await treasuryStore.update();
+	};
 
 	onMount(async () => {
 		user = $userStore;
@@ -15,7 +19,7 @@
 	$: user = $userStore;
 </script>
 
-{#await updateUser()}
+{#await update()}
 	Loading user...
 {:then _}
 	{#if user}
@@ -30,6 +34,6 @@
 			</div>
 		</div>
 
-		<Post on:updateUser={updateUser} />
+		<Post on:updateUser={update} />
 	{/if}
 {/await}

@@ -3,6 +3,7 @@
 	import { postComment } from './api';
 	import Button from '$lib/Button.svelte';
 	import { commentsStore } from './comments.store';
+	import { treasuryStore } from './treasury.store';
 	import { createEventDispatcher } from 'svelte';
 
 	const dispatch = createEventDispatcher();
@@ -26,9 +27,10 @@
 			comment = '';
 			dispatch('updateUser');
 			await commentsStore.update();
+			await treasuryStore.update();
 		} else if ('err' in result) {
 			'AnonNotAllowed' in result.err ? (message = 'Anon not allowed!') : {};
-			'InvalidComment' in result.err ? (message = 'Invalid comment!') : {};
+			'InvalidComment' in result.err ? (message = 'Comment must be between 3 and 200 characters') : {};
 			'TimeRemaining' in result.err
 				? (message = 'Wait ' + Math.round(Number(result.err.TimeRemaining) / 10 ** 9) + ' seconds')
 				: {};
