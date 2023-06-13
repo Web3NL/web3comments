@@ -4,8 +4,8 @@
 	import Button from '$lib/Button.svelte';
 	import { like } from './api';
 	import { treasuryStore } from './treasury.store';
-	import { popup } from '@skeletonlabs/skeleton';
-	import type { PopupSettings } from '@skeletonlabs/skeleton';
+	// import { popup } from '@skeletonlabs/skeleton';
+	// import type { PopupSettings } from '@skeletonlabs/skeleton';
 
 	export let queryComment: QueryComment;
 
@@ -32,15 +32,16 @@
 
 	const created = new Date(Number(queryComment.created) / 1000000).toLocaleString();
 
-	const popupHover: PopupSettings = {
-		event: 'hover',
-		target: 'popupHover',
-		placement: 'top'
-	};
+	// const popupHover: PopupSettings = {
+	// 	event: 'hover',
+	// 	target: 'popupHover',
+	// 	placement: 'top'
+	// };
 </script>
 
 <div class="card mt-4">
-	<div class="pr-28 pb-10 relative [&>*]:pointer-events-none" use:popup={popupHover}>
+	<!-- [&>*]:pointer-events-none" use:popup={popupHover} -->
+	<div class="pr-28 pb-10 relative">
 		<div class="p-6 text-xl w-full break-words h-60">
 			{queryComment.comment}
 		</div>
@@ -62,7 +63,7 @@
 	</div>
 </div>
 
-<div class="card p-4 variant-filled-secondary" data-popup="popupHover">
+<!-- <div class="card p-4 variant-filled-secondary" data-popup="popupHover">
 	<p>One like rewards the commenter with 1 token</p>
 	<div class="arrow variant-filled-secondary" />
-</div>
+</div> -->
