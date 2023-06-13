@@ -104,7 +104,7 @@ module {
                     likes = List.make<CommentHash>(hash);
                 };
 
-                // Update state within atomic block
+                // Update state within atomic block after all checks have passed
                 state.users.put(owner, newUser);
 
                 state.commentStore.put(hash, postComment);
@@ -145,7 +145,7 @@ module {
                     likes = List.push<CommentHash>(hash, user.likes);
                 };
 
-                // Update state within atomic block
+                // Update state within atomic block after all checks have passed
                 state.users.put(liker, newUser);
             };
         };
@@ -183,7 +183,7 @@ module {
                             balance;
                         };
 
-                        // Update state within atomic block
+                        // Update state within atomic block after all checks have passed
                         state.commentStore.put(hash, newComment);
                         state.users.put(comment.owner, newOwner);
 
