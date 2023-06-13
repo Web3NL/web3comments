@@ -42,10 +42,10 @@ actor {
     stable var stableTreasury : Treasury = Constants.TOTAL_SUPPLY;
 
     // INIT DATA STORES FROM STABLE VARS
-    let state : State = {
+    let state : State = object {
 
         // Users HashMap with initial capacity of 1000 users
-        users : Users = HashMap.fromIter<Principal, User>(
+        public let users : Users = HashMap.fromIter<Principal, User>(
             Array.vals(stableUsers),
             1000,
             Principal.equal,
@@ -53,7 +53,7 @@ actor {
         );
 
         // Comments HashMap with initial capacity of 10,000 comments and custom hashing function
-        commentStore : CommentStore = HashMap.fromIter<CommentHash, Comment>(
+        public let commentStore : CommentStore = HashMap.fromIter<CommentHash, Comment>(
             Array.vals(stableCommentStore),
             10_000,
             Hash.equal,
@@ -61,10 +61,10 @@ actor {
         );
 
         // Comment history List
-        var commentHistory : CommentHistory = List.fromArray<CommentHash>(stableCommentHistory);
+        public var commentHistory : CommentHistory = List.fromArray<CommentHash>(stableCommentHistory);
 
         // Treasury
-        var treasury = stableTreasury;
+        public var treasury = stableTreasury;
     };
 
     // PUBLIC METHODS
