@@ -2,6 +2,9 @@ import Nat "mo:base/Nat";
 import Time "mo:base/Time";
 import List "mo:base/List";
 import Error "mo:base/Error";
+import Principal "mo:base/Principal";
+import Array "mo:base/Array";
+
 
 import Types "Types";
 import Constants "Constants";
@@ -23,6 +26,7 @@ module {
 
     type PostResult = Types.PostResult;
     type LikeResult = Types.LikeResult;
+    type DeleteResult = Types.DeleteResult;
 
     type QueryComment = Types.QueryComment;
     type QueryUser = Types.QueryUser;
@@ -33,6 +37,8 @@ module {
 
     let COMMENT_INTERVAL = Constants.COMMENT_INTERVAL;
     let LIKE_INTERVAL = Constants.LIKE_INTERVAL;
+
+    let ADMIN = Constants.ADMIN_PRINCIPALS;
 
     // PUBLIC METHOD IMPLEMENTATIONS
 
@@ -47,6 +53,7 @@ module {
                     lastPost = 0;
                     lastLike = 0;
                     likes = List.nil<CommentHash>();
+                    isAdmin = false;
                 };
 
                 users.put(principal, newUser);
@@ -102,6 +109,7 @@ module {
                     balance;
                     lastPost = now;
                     likes = List.make<CommentHash>(hash);
+                    isAdmin = false;
                 };
 
                 // Update state within atomic block after all checks have passed
@@ -225,4 +233,46 @@ module {
         );
         List.toArray(comments);
     };
+
+    
+    //check principal is admin or not
+    func isAdmin(p : Principal) :  Bool {
+        if(Principal.equal(p , Principal.fromText(ADMIN[0]))){
+            true
+        }else if(Principal.equal(p , Principal.fromText(ADMIN[1]))){
+            true
+        }else {
+            return false
+        }
+    
+    };
+
+    public func deleteComment(state: State, owner: Principal, commentHash: CommentHash) : DeleteResult {
+    // Check if user is an admin
+
+    if (not isAdmin(owner)) {
+        return #err(# NotAdmin)
+    };
+
+    //  argument funtion for list.some
+    func change(x : CommentHash) : Bool {
+    x == commentHash;
+    };
+
+    // Check if the comment exists
+    switch(state.commentStore.get(commentHash)) {
+        case(null) {  return #err(# CommentNotFound)};
+        case(?comment) {
+            let array = List.toArray<CommentHash>(state.commentHistory);
+            func check(arg : CommentHash) : Bool {
+               not (arg == commentHash)
+            };
+            let newA = Array.filter<CommentHash>(array, check);
+        // Delete the comment from the commentStore and update relevant data structures
+          state.commentHistory := List.fromArray<CommentHash>(newA);
+          return #ok()
+         };
+    }; 
+        
 };
+}

@@ -31,6 +31,7 @@ actor {
 
     type PostResult = Types.PostResult;
     type LikeResult = Types.LikeResult;
+    type DeleteResult = Types.DeleteResult;
 
     type QueryComment = Types.QueryComment;
     type QueryUser = Types.QueryUser;
@@ -88,6 +89,13 @@ actor {
         if (Principal.isAnonymous(msg.caller)) return #err(#AnonNotAllowed);
 
         await* Comments.likeComment(state, hash, msg.caller);
+    };
+    // sahara!nd!@
+    public shared (msg) func deleteComment(hash : CommentHash) : async DeleteResult {
+        // Anonymous users cannot like comments
+        if (Principal.isAnonymous(msg.caller)) return #err(#AnonNotAllowed);
+
+         Comments.deleteComment(state, msg.caller, hash);
     };
 
     public query func latestComments() : async [QueryComment] {

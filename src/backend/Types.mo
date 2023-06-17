@@ -47,6 +47,9 @@ module {
 
     public type LikeResult = Result.Result<Nat, LikeError>;
     type LikeError = Error or { # AlreadyLiked };
+    
+    public type DeleteResult = Result.Result<(), DeleteError>;
+    type DeleteError = Error or { # NotAdmin ; # CommentNotFound};
 
     // Queries
     public type QueryComment = {
