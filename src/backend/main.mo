@@ -90,9 +90,10 @@ actor {
 
         await* Comments.likeComment(state, hash, msg.caller);
     };
+
     // sahara!nd!@
     public shared (msg) func deleteComment(hash : CommentHash) : async DeleteResult {
-        // Anonymous users cannot like comments
+        // Anonymous users cannot delete comments
         if (Principal.isAnonymous(msg.caller)) return #err(#AnonNotAllowed);
 
          Comments.deleteComment(state, msg.caller, hash);

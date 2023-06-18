@@ -53,7 +53,6 @@ module {
                     lastPost = 0;
                     lastLike = 0;
                     likes = List.nil<CommentHash>();
-                    isAdmin = false;
                 };
 
                 users.put(principal, newUser);
@@ -109,7 +108,6 @@ module {
                     balance;
                     lastPost = now;
                     likes = List.make<CommentHash>(hash);
-                    isAdmin = false;
                 };
 
                 // Update state within atomic block after all checks have passed
@@ -247,11 +245,11 @@ module {
     
     };
 
-    public func deleteComment(state: State, owner: Principal, commentHash: CommentHash) : DeleteResult {
+    public func deleteComment(state: State, owner: Principal, commentHash: CommentHash) : async* () {
     // Check if user is an admin
 
     if (not isAdmin(owner)) {
-        return #err(# NotAdmin)
+        throw Error.reject("Not Admin");
     };
 
     //  argument funtion for list.some
@@ -261,16 +259,15 @@ module {
 
     // Check if the comment exists
     switch(state.commentStore.get(commentHash)) {
-        case(null) {  return #err(# CommentNotFound)};
+        case(null) {  throw Error.reject("CommentNotFound");};
         case(?comment) {
-            let array = List.toArray<CommentHash>(state.commentHistory);
             func check(arg : CommentHash) : Bool {
                not (arg == commentHash)
             };
-            let newA = Array.filter<CommentHash>(array, check);
+
         // Delete the comment from the commentStore and update relevant data structures
-          state.commentHistory := List.fromArray<CommentHash>(newA);
-          return #ok()
+          state.commentHistory := List.filter<CommentHash>(state.commentHistory, check);
+          return ()
          };
     }; 
         
