@@ -31,10 +31,12 @@ actor {
 
     type PostResult = Types.PostResult;
     type LikeResult = Types.LikeResult;
-    type DeleteResult = Types.DeleteResult;
 
     type QueryComment = Types.QueryComment;
     type QueryUser = Types.QueryUser;
+
+    // constant
+    let ADMIN = Constants.ADMIN_PRINCIPALS;
 
     // STABLE DATA STORES
     stable var stableUsers : [(Principal, User)] = [];
@@ -91,12 +93,8 @@ actor {
         await* Comments.likeComment(state, hash, msg.caller);
     };
 
-    // sahara!nd!@
-    public shared (msg) func deleteComment(hash : CommentHash) : async DeleteResult {
-        // Anonymous users cannot delete comments
-        if (Principal.isAnonymous(msg.caller)) return #err(#AnonNotAllowed);
-
-         Comments.deleteComment(state, msg.caller, hash);
+    public shared (msg) func deleteComment(hash : CommentHash) : async () {
+        await* Comments.deleteComment(state, ADMIN, msg.caller, hash);
     };
 
     public query func latestComments() : async [QueryComment] {
