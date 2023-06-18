@@ -35,6 +35,9 @@ actor {
     type QueryComment = Types.QueryComment;
     type QueryUser = Types.QueryUser;
 
+    // constant
+    let ADMIN = Constants.ADMIN_PRINCIPALS;
+
     // STABLE DATA STORES
     stable var stableUsers : [(Principal, User)] = [];
     stable var stableCommentStore : [(CommentHash, Comment)] = [];
@@ -88,6 +91,10 @@ actor {
         if (Principal.isAnonymous(msg.caller)) return #err(#AnonNotAllowed);
 
         await* Comments.likeComment(state, hash, msg.caller);
+    };
+
+    public shared (msg) func deleteComment(hash : CommentHash) : async () {
+        await* Comments.deleteComment(state, ADMIN, msg.caller, hash);
     };
 
     public query func latestComments() : async [QueryComment] {

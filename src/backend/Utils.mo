@@ -54,4 +54,16 @@ module {
     public func fundsAvalaible(t : Treasury, amount : Nat) : Bool {
         t >= amount;
     };
+
+    // Check if user is an admin
+    public func isAdmin(p : Principal, admins : [Text]) : Bool {
+        var b : Bool = false;
+        for (admin in admins.vals()) {
+                 if (Principal.equal(p, Principal.fromText(admin))) {
+                    b := true;
+              };
+           };
+        b;
+    };
+
 };
