@@ -229,16 +229,11 @@ module {
     List.toArray(comments);
   };
 
-  public func deleteComment(state : State, admins : [Text], owner : Principal, commentHash : CommentHash) : async* () {
+  public func deleteComment(state : State, admins : [Text], caller : Principal, commentHash : CommentHash) : async* () {
 
     // Check if user is an admin
-    if (not isAdmin(owner, admins)) {
+    if (not isAdmin(caller)) {
       throw Error.reject("Not Admin");
-    };
-
-    //  argument funtion for list.some
-    func change(x : CommentHash) : Bool {
-      x == commentHash;
     };
 
     // Check if the comment exists
