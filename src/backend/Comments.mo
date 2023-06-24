@@ -33,6 +33,7 @@ module {
   // Constants
   let COMMENT_REWARD = Constants.COMMENT_REWARD;
   let LIKE_REWARD = Constants.LIKE_REWARD;
+  let ADMIN = Constants.ADMIN_PRINCIPALS;
 
   let COMMENT_INTERVAL = Constants.COMMENT_INTERVAL;
   let LIKE_INTERVAL = Constants.LIKE_INTERVAL;
@@ -229,16 +230,11 @@ module {
     List.toArray(comments);
   };
 
-  public func deleteComment(state : State, admins : [Text], owner : Principal, commentHash : CommentHash) : async* () {
+  public func deleteComment(state : State, owner : Principal, commentHash : CommentHash) : async* () {
 
     // Check if user is an admin
-    if (not isAdmin(owner, admins)) {
+    if (not isAdmin(owner, ADMIN)) {
       throw Error.reject("Not Admin");
-    };
-
-    //  argument funtion for list.some
-    func change(x : CommentHash) : Bool {
-      x == commentHash;
     };
 
     // Check if the comment exists
@@ -248,13 +244,13 @@ module {
         func check(arg : CommentHash) : Bool {
           not (arg == commentHash);
         };
-
-        state.commentHistory := List.filter<CommentHash>(state.commentHistory, check);
         // Delete the comment from the commentStore and update relevant data structures
+        state.commentHistory := List.filter<CommentHash>(state.commentHistory, check);
         state.commentStore.delete(commentHash);
         return ();
       };
     };
 
   };
+  
 };

@@ -35,9 +35,6 @@ actor {
     type QueryComment = Types.QueryComment;
     type QueryUser = Types.QueryUser;
 
-    // constant
-    let ADMIN = Constants.ADMIN_PRINCIPALS;
-
     // STABLE DATA STORES
     stable var stableUsers : [(Principal, User)] = [];
     stable var stableCommentStore : [(CommentHash, Comment)] = [];
@@ -94,7 +91,7 @@ actor {
     };
 
     public shared (msg) func deleteComment(hash : CommentHash) : async () {
-        await* Comments.deleteComment(state, ADMIN, msg.caller, hash);
+        await* Comments.deleteComment(state, msg.caller, hash);
     };
 
     public query func latestComments() : async [QueryComment] {
