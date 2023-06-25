@@ -33,7 +33,7 @@ module {
   // Constants
   let COMMENT_REWARD = Constants.COMMENT_REWARD;
   let LIKE_REWARD = Constants.LIKE_REWARD;
-  let ADMIN = Constants.ADMIN_PRINCIPALS;
+
 
   let COMMENT_INTERVAL = Constants.COMMENT_INTERVAL;
   let LIKE_INTERVAL = Constants.LIKE_INTERVAL;
@@ -233,7 +233,7 @@ module {
   public func deleteComment(state : State, owner : Principal, commentHash : CommentHash) : async* () {
 
     // Check if user is an admin
-    if (not isAdmin(owner, ADMIN)) {
+    if (not isAdmin(owner)) {
       throw Error.reject("Not Admin");
     };
 

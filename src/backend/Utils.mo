@@ -3,6 +3,7 @@ import Principal "mo:base/Principal";
 import Int "mo:base/Int";
 import Text "mo:base/Text";
 import List "mo:base/List";
+import Array "mo:base/Array";
 
 import Types "Types";
 import Constants "Constants";
@@ -56,14 +57,15 @@ module {
     };
 
     // Check if user is an admin
-    public func isAdmin(p : Principal, admins : [Text]) : Bool {
-        var b : Bool = false;
-        for (admin in admins.vals()) {
-                 if (Principal.equal(p, Principal.fromText(admin))) {
-                    b := true;
-              };
-           };
-        b;
+    public func isAdmin(p : Principal) : Bool {
+        let optVal : ?Text =  Array.find<Text>(Constants.ADMIN_PRINCIPALS, func (t) : Bool  {
+            t == Principal.toText(p)
+        });
+
+        switch(optVal) {
+            case(?t) { true };
+            case(null) { false};
+        };
     };
 
 };
