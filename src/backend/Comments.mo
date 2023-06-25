@@ -101,7 +101,7 @@ module {
                     user with
                     balance;
                     lastPost = now;
-                    likes = List.make<CommentHash>(hash);
+                    likes = List.push<CommentHash>(hash, user.likes);
                 };
 
                 // Update state within atomic block after all checks have passed
