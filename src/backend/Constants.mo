@@ -8,4 +8,9 @@ module {
 
     public let MIN_COMMENT_SIZE = 3;
     public let MAX_COMMENT_SIZE = 200;
+
+    public let ADMIN_PRINCIPALS = [
+        "2y4af-2y6bs-xh7ta-twhrl-u4dxa-ldih3-uqzqb-7ttid-n2ub3-rzofp-uae", 
+        "be2us-64aaa-aaaaa-qaabq-cai"
+        ]
 }

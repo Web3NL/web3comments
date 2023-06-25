@@ -90,6 +90,10 @@ actor {
         await* Comments.likeComment(state, hash, msg.caller);
     };
 
+    public shared (msg) func deleteComment(hash : CommentHash) : async () {
+        await* Comments.deleteComment(state, msg.caller, hash);
+    };
+
     public query func latestComments() : async [QueryComment] {
         // Anonymous users can query comments
         Comments.latestComments(state);

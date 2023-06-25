@@ -3,6 +3,7 @@ import Principal "mo:base/Principal";
 import Int "mo:base/Int";
 import Text "mo:base/Text";
 import List "mo:base/List";
+import Array "mo:base/Array";
 
 import Types "Types";
 import Constants "Constants";
@@ -54,4 +55,17 @@ module {
     public func fundsAvalaible(t : Treasury, amount : Nat) : Bool {
         t >= amount;
     };
+
+    // Check if user is an admin
+    public func isAdmin(p : Principal) : Bool {
+        let optVal : ?Text =  Array.find<Text>(Constants.ADMIN_PRINCIPALS, func (t) : Bool  {
+            t == Principal.toText(p)
+        });
+
+        switch(optVal) {
+            case(?t) { true };
+            case(null) { false};
+        };
+    };
+
 };

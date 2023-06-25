@@ -47,6 +47,7 @@ module {
 
     public type LikeResult = Result.Result<Nat, LikeError>;
     type LikeError = Error or { # AlreadyLiked };
+    
 
     // Queries
     public type QueryComment = {
