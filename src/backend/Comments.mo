@@ -88,7 +88,8 @@ module {
           owner;
           comment;
           reward = 0;
-        };
+        }; 
+        
         let hash = hashComment(postComment);
 
         // If treasury is not empty, subtract and add an equal amount of funds
@@ -105,8 +106,9 @@ module {
           user with
           balance;
           lastPost = now;
-          likes = List.make<CommentHash>(hash);
+          // comment owner can also like its comment now, because not updating its like list with current post
         };
+        
 
         // Update state within atomic block after all checks have passed
         state.users.put(owner, newUser);
